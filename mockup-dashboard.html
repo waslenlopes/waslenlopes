@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Executivo — Performance Comercial</title>
+  <style>
+    /* ================================================
+       DESIGN TOKENS (baseado na identidade visual)
+       ================================================ */
+    :root {
+      /* Cores de decisão */
+      --positive:   #118C4F;
+      --negative:   #C70000;
+      --brand:      #AE2E2A;
+      --attention:   #F4BA44;
+
+      /* Neutros de apoio */
+      --dark:       #35302D;
+      --gray-light: #E6E6E6;
+      --warm-1:     #E5E1CF;
+      --warm-2:     #CFCBBB;
+      --darkest:    #292522;
+
+      /* Derivados */
+      --bg:         #F5F3EF;
+      --card-bg:    #FFFFFF;
+      --card-border:#E6E6E6;
+      --text:       #35302D;
+      --text-muted: #8A8580;
+      --text-light: #B0AAA3;
+
+      /* Tipografia */
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    /* ================================================
+       RESET & BASE
+       ================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 24px 40px;
+    }
+
+    /* ================================================
+       1. FAIXA SUPERIOR
+       ================================================ */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: var(--darkest);
+      border-radius: 0 0 12px 12px;
+      margin-bottom: 20px;
+    }
+
+    .top-bar__left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .top-bar__title {
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .top-bar__subtitle {
+      color: var(--warm-2);
+      font-size: 13px;
+      font-weight: 400;
+    }
+
+    /* Semáforo */
+    .semaphore {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .semaphore--critical  { background: var(--negative); color: #fff; }
+    .semaphore--risk      { background: var(--brand);    color: #fff; }
+    .semaphore--attention  { background: var(--attention); color: var(--darkest); }
+    .semaphore--controlled { background: var(--positive); color: #fff; }
+
+    .semaphore__dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: .45;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:.35; transform: scale(1); }
+      50%     { opacity:.85; transform: scale(1.25); }
+    }
+
+    /* Filtros compactos */
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filters__label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-right: 4px;
+    }
+
+    .filters select,
+    .filters input[type="month"] {
+      padding: 6px 12px;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      cursor: pointer;
+    }
+    .filters select:focus,
+    .filters input[type="month"]:focus {
+      border-color: var(--brand);
+    }
+
+    /* Narrativa curta */
+    .narrative {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-left: 4px solid var(--brand);
+      border-radius: 10px;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.65;
+    }
+    .narrative strong { color: var(--brand); }
+    .narrative .highlight-positive { color: var(--positive); font-weight: 600; }
+    .narrative .highlight-negative { color: var(--negative); font-weight: 600; }
+
+    /* ================================================
+       2. LINHA DE KPIs (5 CARDS)
+       ================================================ */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px 20px 14px;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow .2s;
+    }
+    .kpi-card:hover {
+      box-shadow: 0 4px 18px rgba(0,0,0,.07);
+    }
+
+    .kpi-card__label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .kpi-card__value {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .kpi-card__sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .kpi-card__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-top: 6px;
+    }
+    .badge--up   { background: #e8f5ee; color: var(--positive); }
+    .badge--down { background: #fde8e8; color: var(--negative); }
+    .badge--warn { background: #fef5e0; color: #b38600; }
+
+    /* Barra de accent no topo do card */
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      border-radius: 12px 12px 0 0;
+    }
+    .kpi-card--positive::before { background: var(--positive); }
+    .kpi-card--negative::before { background: var(--negative); }
+    .kpi-card--attention::before { background: var(--attention); }
+    .kpi-card--brand::before    { background: var(--brand); }
+    .kpi-card--neutral::before  { background: var(--warm-2); }
+
+    /* ================================================
+       3. ÁREA CENTRAL (Grid 2 colunas)
+       ================================================ */
+    .central {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .panel__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .panel__title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .panel__badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--bg);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Matriz de Priorização (quadrantes) */
+    .matrix {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1.3;
+      border: 1px solid var(--gray-light);
+      border-radius: 8px;
+      overflow: hidden;
+      background:
+        linear-gradient(to right, var(--gray-light) 1px, transparent 1px) center / 50% 100% no-repeat,
+        linear-gradient(to bottom, var(--gray-light) 1px, transparent 1px) center / 100% 50% no-repeat;
+    }
+
+    .matrix__quadrant-label {
+      position: absolute;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      opacity: .55;
+    }
+    .matrix__quadrant-label--tl { top: 8px; left: 10px; color: var(--attention); }
+    .matrix__quadrant-label--tr { top: 8px; right: 10px; color: var(--positive); }
+    .matrix__quadrant-label--bl { bottom: 8px; left: 10px; color: var(--text-muted); }
+    .matrix__quadrant-label--br { bottom: 8px; right: 10px; color: var(--brand); }
+
+    .matrix__axis-label {
+      position: absolute;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .matrix__axis-label--x { bottom: -18px; left: 50%; transform: translateX(-50%); }
+    .matrix__axis-label--y { top: 50%; left: -30px; transform: rotate(-90deg) translateX(-50%); transform-origin: top left; }
+
+    .matrix__dot {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      transition: transform .2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+    .matrix__dot:hover { transform: scale(1.2); z-index: 10; }
+
+    /* Tabela de riscos */
+    .risk-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .risk-table thead th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--text-muted);
+      padding: 0 8px 10px;
+      border-bottom: 2px solid var(--gray-light);
+    }
+
+    .risk-table tbody td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--gray-light);
+      vertical-align: top;
+    }
+
+    .risk-table tbody tr:last-child td { border-bottom: none; }
+
+    .risk-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .risk-tag--high   { background: #fde8e8; color: var(--negative); }
+    .risk-tag--medium { background: #fef5e0; color: #b38600; }
+    .risk-tag--low    { background: #e8f5ee; color: var(--positive); }
+
+    .action-text {
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    /* ================================================
+       4. RODAPÉ — SÉRIE TEMPORAL
+       ================================================ */
+    .chart-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px 24px;
+    }
+
+    .chart-panel__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .chart-panel__title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .chart-legend span::before {
+      content: '';
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+    .chart-legend .leg-realizado::before { background: var(--brand); }
+    .chart-legend .leg-meta::before      { background: var(--dark); }
+    .chart-legend .leg-trend::before     { background: var(--attention); }
+
+    /* SVG Chart Container */
+    .chart-svg-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+    .chart-svg-wrap svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* ================================================
+       RESPONSIVO
+       ================================================ */
+    @media (max-width: 1024px) {
+      .kpi-row { grid-template-columns: repeat(3, 1fr); }
+      .central { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .kpi-row { grid-template-columns: 1fr 1fr; }
+      .top-bar { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ======================================
+       1. FAIXA SUPERIOR
+       ====================================== -->
+  <header class="top-bar">
+    <div class="top-bar__left">
+      <div>
+        <div class="top-bar__title">Performance Comercial</div>
+        <div class="top-bar__subtitle">Visão Executiva — Abril 2026</div>
+      </div>
+      <div class="semaphore semaphore--attention">
+        <span class="semaphore__dot"></span>
+        Atenção
+      </div>
+    </div>
+  </header>
+
+  <!-- Filtros compactos -->
+  <div class="filters">
+    <span class="filters__label">Filtros:</span>
+    <select>
+      <option>Todas as Regionais</option>
+      <option>Norte</option>
+      <option>Nordeste</option>
+      <option>Sudeste</option>
+      <option>Sul</option>
+      <option>Centro-Oeste</option>
+    </select>
+    <select>
+      <option>Todos os Canais</option>
+      <option>Varejo</option>
+      <option>Atacado</option>
+      <option>E-commerce</option>
+      <option>Distribuidores</option>
+    </select>
+    <select>
+      <option>Todas as Categorias</option>
+      <option>Categoria A</option>
+      <option>Categoria B</option>
+      <option>Categoria C</option>
+    </select>
+    <input type="month" value="2026-04" />
+    <select>
+      <option>Cenário Base</option>
+      <option>Cenário Conservador</option>
+      <option>Cenário Agressivo</option>
+    </select>
+  </div>
+
+  <!-- Narrativa curta (3 sentenças) -->
+  <div class="narrative">
+    O realizado até dia 17 atinge <strong>62% da meta mensal</strong>, com ritmo 8 p.p. abaixo do necessário para fechar Abril.
+    A regional <span class="highlight-negative">Nordeste concentra 43% do gap</span> e precisa de ação imediata no canal Atacado.
+    Se mantido o ritmo atual, a projeção fecha em <strong>R$ 8,7 M</strong> — <span class="highlight-positive">recuperável</span> com reforço nos 5 maiores territórios.
+  </div>
+
+  <!-- ======================================
+       2. LINHA DE KPIs (5 CARDS)
+       ====================================== -->
+  <section class="kpi-row">
+
+    <!-- Realizado do Mês -->
+    <div class="kpi-card kpi-card--brand">
+      <div class="kpi-card__label">Realizado do Mês</div>
+      <div class="kpi-card__value" style="color:var(--brand)">R$ 6,2 M</div>
+      <div class="kpi-card__sub">62% da meta (R$ 10 M)</div>
+      <div class="kpi-card__badge badge--down">▼ -5% vs mês anterior</div>
+    </div>
+
+    <!-- Projeção de Fechamento -->
+    <div class="kpi-card kpi-card--attention">
+      <div class="kpi-card__label">Projeção de Fechamento</div>
+      <div class="kpi-card__value" style="color:var(--attention)">R$ 8,7 M</div>
+      <div class="kpi-card__sub">Cenário base — ritmo atual</div>
+      <div class="kpi-card__badge badge--warn">⚠ 87% da meta</div>
+    </div>
+
+    <!-- Gap até Meta -->
+    <div class="kpi-card kpi-card--negative">
+      <div class="kpi-card__label">Gap até Meta</div>
+      <div class="kpi-card__value" style="color:var(--negative)">R$ 3,8 M</div>
+      <div class="kpi-card__sub">38% restante em 13 dias úteis</div>
+      <div class="kpi-card__badge badge--down">▼ Gap cresceu 12%</div>
+    </div>
+
+    <!-- Ritmo Necessário vs Atual -->
+    <div class="kpi-card kpi-card--attention">
+      <div class="kpi-card__label">Ritmo Necessário vs Atual</div>
+      <div class="kpi-card__value" style="color:var(--dark)">R$ 292 K<span style="font-size:18px;color:var(--text-muted);font-weight:400"> / dia</span></div>
+      <div class="kpi-card__sub">Atual: R$ 210 K/dia</div>
+      <div class="kpi-card__badge badge--down">▼ -28% abaixo do necessário</div>
+    </div>
+
+    <!-- Efetividade vs Média 6M -->
+    <div class="kpi-card kpi-card--positive">
+      <div class="kpi-card__label">Efetividade vs Média 6M</div>
+      <div class="kpi-card__value" style="color:var(--positive)">73%</div>
+      <div class="kpi-card__sub">Média 6 meses: 68%</div>
+      <div class="kpi-card__badge badge--up">▲ +5 p.p. acima da média</div>
+    </div>
+
+  </section>
+
+  <!-- ======================================
+       3. ÁREA CENTRAL
+       ====================================== -->
+  <section class="central">
+
+    <!-- ESQUERDA: Matriz de Priorização -->
+    <div class="panel">
+      <div class="panel__header">
+        <div class="panel__title">Matriz de Priorização por Território</div>
+        <span class="panel__badge">Impacto no Gap × Prob. Recuperação</span>
+      </div>
+
+      <div style="position:relative; padding: 0 0 24px 36px;">
+        <span class="matrix__axis-label" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);">Probabilidade de Recuperação →</span>
+        <span class="matrix__axis-label" style="position:absolute;top:50%;left:0;transform:rotate(-90deg) translateX(-50%);transform-origin:top left;white-space:nowrap;">Impacto no Gap →</span>
+
+        <div class="matrix">
+          <!-- Quadrant labels -->
+          <span class="matrix__quadrant-label matrix__quadrant-label--tl">Monitorar</span>
+          <span class="matrix__quadrant-label matrix__quadrant-label--tr">Prioridade Máxima</span>
+          <span class="matrix__quadrant-label matrix__quadrant-label--bl">Baixa Prioridade</span>
+          <span class="matrix__quadrant-label matrix__quadrant-label--br">Oportunidade</span>
+
+          <!-- Territory dots -->
+          <div class="matrix__dot" style="background:var(--negative);top:12%;right:18%;" title="Nordeste — Alto impacto, alta probabilidade">NE</div>
+          <div class="matrix__dot" style="background:var(--brand);top:22%;right:35%;" title="Sudeste — Alto impacto, média prob.">SE</div>
+          <div class="matrix__dot" style="background:var(--attention);top:15%;left:20%;" title="Norte — Alto impacto, baixa prob.">N</div>
+          <div class="matrix__dot" style="background:var(--positive);top:55%;right:15%;" title="Sul — Médio impacto, alta prob.">S</div>
+          <div class="matrix__dot" style="background:var(--warm-2);color:var(--dark);top:65%;left:25%;" title="Centro-Oeste — Baixo impacto, baixa prob.">CO</div>
+          <div class="matrix__dot" style="background:var(--positive);top:40%;right:28%;" title="MG Interior — Médio impacto, alta prob.">MG</div>
+          <div class="matrix__dot" style="background:var(--brand);top:30%;left:35%;" title="SP Capital — Alto impacto, baixa-média prob.">SP</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIREITA: Top Riscos e Ação Sugerida -->
+    <div class="panel">
+      <div class="panel__header">
+        <div class="panel__title">Top Riscos e Ações Sugeridas</div>
+        <span class="panel__badge">Atualizado em 17/04</span>
+      </div>
+
+      <table class="risk-table">
+        <thead>
+          <tr>
+            <th style="width:22%">Território</th>
+            <th style="width:15%">Risco</th>
+            <th style="width:20%">Gap (R$)</th>
+            <th>Ação Sugerida</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Nordeste</strong></td>
+            <td><span class="risk-tag risk-tag--high">Crítico</span></td>
+            <td style="color:var(--negative);font-weight:700">R$ 1,63 M</td>
+            <td class="action-text">Ativar campanha emergencial Atacado + reunião com top 5 clientes até 21/04</td>
+          </tr>
+          <tr>
+            <td><strong>Sudeste</strong></td>
+            <td><span class="risk-tag risk-tag--high">Alto</span></td>
+            <td style="color:var(--negative);font-weight:700">R$ 980 K</td>
+            <td class="action-text">Reforçar sell-out no Varejo e renegociar volumes com distribuidores</td>
+          </tr>
+          <tr>
+            <td><strong>Norte</strong></td>
+            <td><span class="risk-tag risk-tag--medium">Médio</span></td>
+            <td style="color:var(--attention);font-weight:700">R$ 540 K</td>
+            <td class="action-text">Priorizar 3 praças-chave: Manaus, Belém, São Luís — foco em e-commerce</td>
+          </tr>
+          <tr>
+            <td><strong>SP Capital</strong></td>
+            <td><span class="risk-tag risk-tag--medium">Médio</span></td>
+            <td style="color:var(--attention);font-weight:700">R$ 420 K</td>
+            <td class="action-text">Acelerar conversão de pipeline aberto com descontos escalonados</td>
+          </tr>
+          <tr>
+            <td><strong>Sul</strong></td>
+            <td><span class="risk-tag risk-tag--low">Baixo</span></td>
+            <td style="color:var(--positive);font-weight:700">R$ 180 K</td>
+            <td class="action-text">Manter ritmo — gap controlável com execução normal</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <!-- ======================================
+       4. RODAPÉ — SÉRIE TEMPORAL
+       ====================================== -->
+  <section class="chart-panel">
+    <div class="chart-panel__header">
+      <div class="chart-panel__title">Evolução Mensal — Realizado vs Meta</div>
+      <div class="chart-legend">
+        <span class="leg-realizado">Realizado</span>
+        <span class="leg-meta">Meta</span>
+        <span class="leg-trend">Tendência</span>
+      </div>
+    </div>
+
+    <div class="chart-svg-wrap">
+      <!-- Inline SVG chart — série temporal clean -->
+      <svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" style="min-width:700px;">
+        <!-- Grid lines -->
+        <line x1="60" y1="30"  x2="860" y2="30"  stroke="#E6E6E6" stroke-dasharray="4,4"/>
+        <line x1="60" y1="75"  x2="860" y2="75"  stroke="#E6E6E6" stroke-dasharray="4,4"/>
+        <line x1="60" y1="120" x2="860" y2="120" stroke="#E6E6E6" stroke-dasharray="4,4"/>
+        <line x1="60" y1="165" x2="860" y2="165" stroke="#E6E6E6" stroke-dasharray="4,4"/>
+        <line x1="60" y1="210" x2="860" y2="210" stroke="#E6E6E6"/>
+
+        <!-- Y axis labels -->
+        <text x="50" y="34"  text-anchor="end" font-size="10" fill="#8A8580">12M</text>
+        <text x="50" y="79"  text-anchor="end" font-size="10" fill="#8A8580">10M</text>
+        <text x="50" y="124" text-anchor="end" font-size="10" fill="#8A8580">8M</text>
+        <text x="50" y="169" text-anchor="end" font-size="10" fill="#8A8580">6M</text>
+        <text x="50" y="214" text-anchor="end" font-size="10" fill="#8A8580">4M</text>
+
+        <!-- Meta line (dashed) -->
+        <polyline
+          points="93,75 160,75 227,75 294,75 361,75 428,75 495,75 562,75 629,75 696,75 763,75 830,75"
+          fill="none" stroke="#35302D" stroke-width="2" stroke-dasharray="6,4" opacity=".5"/>
+
+        <!-- Realizado line -->
+        <polyline
+          points="93,150 160,138 227,120 294,130 361,110 428,95 495,100 562,88 629,80 696,92 763,105 830,108"
+          fill="none" stroke="#AE2E2A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+
+        <!-- Area fill under realizado -->
+        <polygon
+          points="93,150 160,138 227,120 294,130 361,110 428,95 495,100 562,88 629,80 696,92 763,105 830,108 830,210 93,210"
+          fill="url(#areaGrad)" opacity=".18"/>
+
+        <defs>
+          <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#AE2E2A"/>
+            <stop offset="100%" stop-color="#AE2E2A" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Trend line (linear regression approx) -->
+        <line x1="93" y1="148" x2="830" y2="96" stroke="#F4BA44" stroke-width="2" stroke-dasharray="3,3" opacity=".7"/>
+
+        <!-- Data points (small) for realizado — only a few to keep it clean -->
+        <circle cx="93"  cy="150" r="3" fill="#AE2E2A"/>
+        <circle cx="361" cy="110" r="3" fill="#AE2E2A"/>
+        <circle cx="629" cy="80"  r="3" fill="#AE2E2A"/>
+
+        <!-- Last point highlighted -->
+        <circle cx="830" cy="108" r="7" fill="#AE2E2A" opacity=".2"/>
+        <circle cx="830" cy="108" r="4.5" fill="#AE2E2A"/>
+
+        <!-- Label on last point -->
+        <rect x="800" y="84" width="60" height="20" rx="4" fill="#AE2E2A"/>
+        <text x="830" y="97" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">R$ 8,7M</text>
+
+        <!-- Variation annotation -->
+        <text x="830" y="132" text-anchor="middle" font-size="10" fill="#C70000" font-weight="600">▼ -5% MoM</text>
+
+        <!-- X axis labels (reduced — only key months) -->
+        <text x="93"  y="232" text-anchor="middle" font-size="10" fill="#8A8580">Mai</text>
+        <text x="227" y="232" text-anchor="middle" font-size="10" fill="#8A8580">Jul</text>
+        <text x="361" y="232" text-anchor="middle" font-size="10" fill="#8A8580">Set</text>
+        <text x="495" y="232" text-anchor="middle" font-size="10" fill="#8A8580">Nov</text>
+        <text x="629" y="232" text-anchor="middle" font-size="10" fill="#8A8580">Jan</text>
+        <text x="763" y="232" text-anchor="middle" font-size="10" fill="#8A8580">Mar</text>
+        <text x="830" y="232" text-anchor="middle" font-size="11" fill="#AE2E2A" font-weight="700">Abr*</text>
+
+        <!-- Projection shading on last bar -->
+        <rect x="810" y="108" width="40" height="102" rx="3" fill="#AE2E2A" opacity=".06"/>
+        <text x="830" y="247" text-anchor="middle" font-size="9" fill="#8A8580" font-style="italic">*projeção</text>
+      </svg>
+    </div>
+  </section>
+
+</div>
+
+</body>
+</html>
